@@ -172,5 +172,5 @@ func (x placeholderExtension) ContainingOneof() protoreflect.OneofDescriptor    
 func (x placeholderExtension) ContainingMessage() protoreflect.MessageDescriptor  { return nil }
 func (x placeholderExtension) Enum() protoreflect.EnumDescriptor                  { return nil }
 func (x placeholderExtension) Message() protoreflect.MessageDescriptor            { return nil }
-func (x placeholderExtension) ProtoType(protoreflect.FieldDescriptor)             { return }
-func (x placeholderExtension) ProtoInternal(pragma.DoNotImplement)                { return }
+func (x placeholderExtension) ProtoType(protoreflect.FieldDescriptor)             {}
+func (x placeholderExtension) ProtoInternal(pragma.DoNotImplement)                {}

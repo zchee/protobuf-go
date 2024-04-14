@@ -62,16 +62,9 @@ func NewConverter(t reflect.Type, fd protoreflect.FieldDescriptor) Converter {
 }
 
 var (
-	boolType    = reflect.TypeOf(bool(false))
-	int32Type   = reflect.TypeOf(int32(0))
-	int64Type   = reflect.TypeOf(int64(0))
-	uint32Type  = reflect.TypeOf(uint32(0))
-	uint64Type  = reflect.TypeOf(uint64(0))
-	float32Type = reflect.TypeOf(float32(0))
-	float64Type = reflect.TypeOf(float64(0))
-	stringType  = reflect.TypeOf(string(""))
-	bytesType   = reflect.TypeOf([]byte(nil))
-	byteType    = reflect.TypeOf(byte(0))
+	stringType = reflect.TypeOf(string(""))
+	bytesType  = reflect.TypeOf([]byte(nil))
+	byteType   = reflect.TypeOf(byte(0))
 )
 
 var (

@@ -38,10 +38,10 @@ type reflectMessageInfo struct {
 }
 
 // makeReflectFuncs generates the set of functions to support reflection.
-func (mi *MessageInfo) makeReflectFuncs(t reflect.Type, si structInfo) {
+func (mi *MessageInfo) makeReflectFuncs(si structInfo) {
 	mi.makeKnownFieldsFunc(si)
-	mi.makeUnknownFieldsFunc(t, si)
-	mi.makeExtensionFieldsFunc(t, si)
+	mi.makeUnknownFieldsFunc(si)
+	mi.makeExtensionFieldsFunc(si)
 	mi.makeFieldTypes(si)
 }
 
@@ -67,17 +67,17 @@ func (mi *MessageInfo) makeKnownFieldsFunc(si structInfo) {
 		case fs.Type == nil:
 			fi = fieldInfoForMissing(fd) // never occurs for officially generated message types
 		case isOneof:
-			fi = fieldInfoForOneof(fd, fs, mi.Exporter, si.oneofWrappersByNumber[fd.Number()])
+			fi = fieldInfoForOneof(fd, fs, si.oneofWrappersByNumber[fd.Number()])
 		case fd.IsMap():
-			fi = fieldInfoForMap(fd, fs, mi.Exporter)
+			fi = fieldInfoForMap(fd, fs)
 		case fd.IsList():
-			fi = fieldInfoForList(fd, fs, mi.Exporter)
+			fi = fieldInfoForList(fd, fs)
 		case fd.IsWeak():
 			fi = fieldInfoForWeakMessage(fd, si.weakOffset)
 		case fd.Message() != nil:
-			fi = fieldInfoForMessage(fd, fs, mi.Exporter)
+			fi = fieldInfoForMessage(fd, fs)
 		default:
-			fi = fieldInfoForScalar(fd, fs, mi.Exporter)
+			fi = fieldInfoForScalar(fd, fs)
 		}
 		mi.fields[fd.Number()] = &fi
 	}
@@ -85,7 +85,7 @@ func (mi *MessageInfo) makeKnownFieldsFunc(si structInfo) {
 	mi.oneofs = map[protoreflect.Name]*oneofInfo{}
 	for i := 0; i < md.Oneofs().Len(); i++ {
 		od := md.Oneofs().Get(i)
-		mi.oneofs[od.Name()] = makeOneofInfo(od, si, mi.Exporter)
+		mi.oneofs[od.Name()] = makeOneofInfo(od, si)
 	}
 
 	mi.denseFields = make([]*fieldInfo, fds.Len()*2)
@@ -113,7 +113,7 @@ func (mi *MessageInfo) makeKnownFieldsFunc(si structInfo) {
 	}
 }
 
-func (mi *MessageInfo) makeUnknownFieldsFunc(t reflect.Type, si structInfo) {
+func (mi *MessageInfo) makeUnknownFieldsFunc(si structInfo) {
 	switch {
 	case si.unknownOffset.IsValid() && si.unknownType == unknownFieldsAType:
 		// Handle as []byte.
@@ -163,7 +163,7 @@ func (mi *MessageInfo) makeUnknownFieldsFunc(t reflect.Type, si structInfo) {
 	}
 }
 
-func (mi *MessageInfo) makeExtensionFieldsFunc(t reflect.Type, si structInfo) {
+func (mi *MessageInfo) makeExtensionFieldsFunc(si structInfo) {
 	if si.extensionOffset.IsValid() {
 		mi.extensionMap = func(p pointer) *extensionMap {
 			if p.IsNil() {

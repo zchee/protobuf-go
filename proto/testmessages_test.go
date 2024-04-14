@@ -25,7 +25,6 @@ type testProto struct {
 	decodeTo         []proto.Message
 	wire             []byte
 	partial          bool
-	noEncode         bool
 	checkFastInit    bool
 	unmarshalOptions proto.UnmarshalOptions
 	validationStatus impl.ValidationStatus

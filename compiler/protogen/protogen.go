@@ -19,7 +19,7 @@ import (
 	"go/printer"
 	"go/token"
 	"go/types"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -60,7 +60,7 @@ func run(opts Options, f func(*Plugin) error) error {
 	if len(os.Args) > 1 {
 		return fmt.Errorf("unknown argument %q (this program should be run by protoc, not directly)", os.Args[1])
 	}
-	in, err := ioutil.ReadAll(os.Stdin)
+	in, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return err
 	}
@@ -1364,16 +1364,6 @@ func (e *extensionRegistry) hasNovelExtensions() bool {
 func (e *extensionRegistry) registerAllExtensionsFromFile(f protoreflect.FileDescriptor) error {
 	if err := e.registerAllExtensions(f.Extensions()); err != nil {
 		return err
-	}
-	return nil
-}
-
-func (e *extensionRegistry) registerAllExtensionsFromMessage(ms protoreflect.MessageDescriptors) error {
-	for i := 0; i < ms.Len(); i++ {
-		m := ms.Get(i)
-		if err := e.registerAllExtensions(m.Extensions()); err != nil {
-			return err
-		}
 	}
 	return nil
 }

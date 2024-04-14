@@ -87,7 +87,7 @@ func (mi *MessageInfo) initOnce() {
 	t = t.Elem()
 
 	si := mi.makeStructInfo(t)
-	mi.makeReflectFuncs(t, si)
+	mi.makeReflectFuncs(si)
 	mi.makeCoderMethods(t, si)
 
 	atomic.StoreUint32(&mi.initDone, 1)
@@ -157,22 +157,22 @@ fieldLoop:
 		switch f := t.Field(i); f.Name {
 		case genid.SizeCache_goname, genid.SizeCacheA_goname:
 			if f.Type == sizecacheType {
-				si.sizecacheOffset = offsetOf(f, mi.Exporter)
+				si.sizecacheOffset = offsetOf(f)
 				si.sizecacheType = f.Type
 			}
 		case genid.WeakFields_goname, genid.WeakFieldsA_goname:
 			if f.Type == weakFieldsType {
-				si.weakOffset = offsetOf(f, mi.Exporter)
+				si.weakOffset = offsetOf(f)
 				si.weakType = f.Type
 			}
 		case genid.UnknownFields_goname, genid.UnknownFieldsA_goname:
 			if f.Type == unknownFieldsAType || f.Type == unknownFieldsBType {
-				si.unknownOffset = offsetOf(f, mi.Exporter)
+				si.unknownOffset = offsetOf(f)
 				si.unknownType = f.Type
 			}
 		case genid.ExtensionFields_goname, genid.ExtensionFieldsA_goname, genid.ExtensionFieldsB_goname:
 			if f.Type == extensionFieldsType {
-				si.extensionOffset = offsetOf(f, mi.Exporter)
+				si.extensionOffset = offsetOf(f)
 				si.extensionType = f.Type
 			}
 		default:

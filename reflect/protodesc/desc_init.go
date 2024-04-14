@@ -116,27 +116,6 @@ func (r descsByName) initMessagesDeclarations(mds []*descriptorpb.DescriptorProt
 	return ms, nil
 }
 
-// canBePacked returns whether the field can use packed encoding:
-// https://protobuf.dev/programming-guides/encoding/#packed
-func canBePacked(fd *descriptorpb.FieldDescriptorProto) bool {
-	if fd.GetLabel() != descriptorpb.FieldDescriptorProto_LABEL_REPEATED {
-		return false // not a repeated field
-	}
-
-	switch protoreflect.Kind(fd.GetType()) {
-	case protoreflect.MessageKind, protoreflect.GroupKind:
-		return false // not a scalar type field
-
-	case protoreflect.StringKind, protoreflect.BytesKind:
-		// string and bytes can explicitly not be declared as packed,
-		// see https://protobuf.dev/programming-guides/encoding/#packed
-		return false
-
-	default:
-		return true
-	}
-}
-
 func (r descsByName) initFieldsFromDescriptorProto(fds []*descriptorpb.FieldDescriptorProto, parent protoreflect.Descriptor, sb *strs.Builder) (fs []filedesc.Field, err error) {
 	fs = make([]filedesc.Field, len(fds)) // allocate up-front to ensure stable pointers
 	for i, fd := range fds {

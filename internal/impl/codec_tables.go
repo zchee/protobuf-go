@@ -15,7 +15,6 @@ import (
 
 // pointerCoderFuncs is a set of pointer encoding functions.
 type pointerCoderFuncs struct {
-	mi        *MessageInfo
 	size      func(p pointer, f *coderFieldInfo, opts marshalOptions) int
 	marshal   func(b []byte, p pointer, f *coderFieldInfo, opts marshalOptions) ([]byte, error)
 	unmarshal func(b []byte, p pointer, wtyp protowire.Type, f *coderFieldInfo, opts unmarshalOptions) (unmarshalOutput, error)

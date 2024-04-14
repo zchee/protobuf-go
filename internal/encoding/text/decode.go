@@ -503,15 +503,6 @@ func isTypeNameChar(b byte) bool {
 		('A' <= b && b <= 'Z'))
 }
 
-func isWhiteSpace(b byte) bool {
-	switch b {
-	case ' ', '\n', '\r', '\t':
-		return true
-	default:
-		return false
-	}
-}
-
 // parseIdent parses an unquoted proto identifier and returns size.
 // If allowNeg is true, it allows '-' to be the first character in the
 // identifier. This is used when parsing literal values like -infinity, etc.

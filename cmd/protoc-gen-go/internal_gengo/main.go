@@ -57,7 +57,6 @@ const (
 // on the dependencies of generated source code.
 var (
 	protoPackage         goImportPath = protogen.GoImportPath("google.golang.org/protobuf/proto")
-	protoifacePackage    goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoiface")
 	protoimplPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/runtime/protoimpl")
 	protojsonPackage     goImportPath = protogen.GoImportPath("google.golang.org/protobuf/encoding/protojson")
 	protoreflectPackage  goImportPath = protogen.GoImportPath("google.golang.org/protobuf/reflect/protoreflect")
@@ -231,7 +230,7 @@ func genImport(gen *protogen.Plugin, g *protogen.GeneratedFile, f *fileInfo, imp
 
 func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 	// Enum type declaration.
-	g.Annotate(e.GoIdent.GoName, e.Location)
+	g.AnnotateSymbol(e.GoIdent.GoName, protogen.Annotation{Location: e.Location})
 	leadingComments := appendDeprecationSuffix(e.Comments.Leading,
 		e.Desc.ParentFile(),
 		e.Desc.Options().(*descriptorpb.EnumOptions).GetDeprecated())
@@ -241,7 +240,7 @@ func genEnum(g *protogen.GeneratedFile, f *fileInfo, e *enumInfo) {
 	// Enum value constants.
 	g.P("const (")
 	for _, value := range e.Values {
-		g.Annotate(value.GoIdent.GoName, value.Location)
+		g.AnnotateSymbol(value.GoIdent.GoName, protogen.Annotation{Location: value.Location})
 		leadingComments := appendDeprecationSuffix(value.Comments.Leading,
 			value.Desc.ParentFile(),
 			value.Desc.Options().(*descriptorpb.EnumValueOptions).GetDeprecated())
@@ -331,7 +330,7 @@ func genMessage(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 	}
 
 	// Message type declaration.
-	g.Annotate(m.GoIdent.GoName, m.Location)
+	g.AnnotateSymbol(m.GoIdent.GoName, protogen.Annotation{Location: m.Location})
 	leadingComments := appendDeprecationSuffix(m.Comments.Leading,
 		m.Desc.ParentFile(),
 		m.Desc.Options().(*descriptorpb.MessageOptions).GetDeprecated())
@@ -349,13 +348,13 @@ func genMessage(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 
 func genMessageFields(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo) {
 	sf := f.allMessageFieldsByPtr[m]
-	genMessageInternalFields(g, f, m, sf)
+	genMessageInternalFields(g, m, sf)
 	for _, field := range m.Fields {
 		genMessageField(g, f, m, field, sf)
 	}
 }
 
-func genMessageInternalFields(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, sf *structFields) {
+func genMessageInternalFields(g *protogen.GeneratedFile, m *messageInfo, sf *structFields) {
 	g.P(genid.State_goname, " ", protoimplPackage.Ident("MessageState"))
 	sf.append(genid.State_goname)
 	g.P(genid.SizeCache_goname, " ", protoimplPackage.Ident("SizeCache"))
@@ -392,7 +391,7 @@ func genMessageField(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, fie
 			tags = append(tags, gotrackTags...)
 		}
 
-		g.Annotate(m.GoIdent.GoName+"."+oneof.GoName, oneof.Location)
+		g.AnnotateSymbol(m.GoIdent.GoName+"."+oneof.GoName, protogen.Annotation{Location: oneof.Location})
 		leadingComments := oneof.Comments.Leading
 		if leadingComments != "" {
 			leadingComments += "\n"
@@ -431,7 +430,7 @@ func genMessageField(g *protogen.GeneratedFile, f *fileInfo, m *messageInfo, fie
 	if field.Desc.IsWeak() {
 		name = genid.WeakFieldPrefix_goname + name
 	}
-	g.Annotate(m.GoIdent.GoName+"."+name, field.Location)
+	g.AnnotateSymbol(m.GoIdent.GoName+"."+name, protogen.Annotation{Location: field.Location})
 	leadingComments := appendDeprecationSuffix(field.Comments.Leading,
 		field.Desc.ParentFile(),
 		field.Desc.Options().(*descriptorpb.FieldOptions).GetDeprecated())
@@ -559,7 +558,7 @@ func genMessageGetterMethods(g *protogen.GeneratedFile, f *fileInfo, m *messageI
 
 		// Getter for parent oneof.
 		if oneof := field.Oneof; oneof != nil && oneof.Fields[0] == field && !oneof.Desc.IsSynthetic() {
-			g.Annotate(m.GoIdent.GoName+".Get"+oneof.GoName, oneof.Location)
+			g.AnnotateSymbol(m.GoIdent.GoName+".Get"+oneof.GoName, protogen.Annotation{Location: oneof.Location})
 			g.P("func (m *", m.GoIdent.GoName, ") Get", oneof.GoName, "() ", oneofInterfaceName(oneof), " {")
 			g.P("if m != nil {")
 			g.P("return m.", oneof.GoName)
@@ -572,7 +571,7 @@ func genMessageGetterMethods(g *protogen.GeneratedFile, f *fileInfo, m *messageI
 		// Getter for message field.
 		goType, pointer := fieldGoType(g, f, field)
 		defaultValue := fieldDefaultValue(g, f, m, field)
-		g.Annotate(m.GoIdent.GoName+".Get"+field.GoName, field.Location)
+		g.AnnotateSymbol(m.GoIdent.GoName+".Get"+field.GoName, protogen.Annotation{Location: field.Location})
 		leadingComments := appendDeprecationSuffix("",
 			field.Desc.ParentFile(),
 			field.Desc.Options().(*descriptorpb.FieldOptions).GetDeprecated())
@@ -815,8 +814,8 @@ func genMessageOneofWrapperTypes(g *protogen.GeneratedFile, f *fileInfo, m *mess
 		g.P("}")
 		g.P()
 		for _, field := range oneof.Fields {
-			g.Annotate(field.GoIdent.GoName, field.Location)
-			g.Annotate(field.GoIdent.GoName+"."+field.GoName, field.Location)
+			g.AnnotateSymbol(field.GoIdent.GoName, protogen.Annotation{Location: field.Location})
+			g.AnnotateSymbol(field.GoIdent.GoName+"."+field.GoName, protogen.Annotation{Location: field.Location})
 			g.P("type ", field.GoIdent, " struct {")
 			goType, _ := fieldGoType(g, f, field)
 			tags := structTags{
